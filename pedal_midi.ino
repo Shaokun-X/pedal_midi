@@ -56,9 +56,9 @@ uint8_t getPitch(uint8_t col, uint8_t row) {
 void enableColumn(uint8_t col) {
   for (int i = 0; i < NUM_COLUMNS; i++) {
     if (col == i) {
-      digitalWrite(groups[i], HIGH);
-    } else {
       digitalWrite(groups[i], LOW);
+    } else {
+      digitalWrite(groups[i], HIGH);
     }
   }
 }
@@ -102,7 +102,7 @@ void loop() {
   // Read pedals
   for (int i = 0; i < NUM_COLUMNS; i++) {
     enableColumn(i);
-    for (int j = 0; i < NUM_ROWS; j++) {
+    for (int j = 0; j < NUM_ROWS; j++) {
       if (digitalRead(pedals[j]) == LOW) {
         bitWrite(pressedPedals[i], j, 1);
       } else {
@@ -113,7 +113,7 @@ void loop() {
 
   // Queue events
   for (int i = 0; i < NUM_COLUMNS; i++) {
-    for (int j = 0; i < NUM_ROWS; j++) {
+    for (int j = 0; j < NUM_ROWS; j++) {
 
       if (bitRead(pressedPedals[i], j) != bitRead(previousPedals[i], j)) {
         if (bitRead(pressedPedals[i], j)) {
