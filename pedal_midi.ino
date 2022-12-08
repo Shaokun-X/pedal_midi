@@ -131,5 +131,6 @@ void loop() {
   }
 
   // flush buffer
-  flushBuffer();
+  if (bufferCount >= BUFFER_SIZE)
+    flushBuffer();
 }
