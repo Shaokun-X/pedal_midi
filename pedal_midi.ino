@@ -12,7 +12,7 @@
 #define INTENSITY 127
 
 // Data is not sent until buffer is full, size unit in bytes, should be greater than or equal to 4 (size of midiEventPacket_t)
-#define BUFFER_SIZE 64
+// #define BUFFER_SIZE 64
 
 
 // Define your pin numbers here
@@ -37,7 +37,7 @@ uint8_t pressedPedals[NUM_COLUMNS] = {0, 0, 0, 0};
 
 uint8_t previousPedals[NUM_COLUMNS] = {0, 0, 0, 0};
 
-unsigned int bufferCount = 0;
+// unsigned int bufferCount = 0;
 
 
 /*
@@ -120,10 +120,12 @@ void loop() {
           // press
           bitWrite(previousPedals[i], j , 1);
           noteOn(0, getPitch(i, j), INTENSITY);
+          MidiUSB.flush();
         } else {
           // release
           bitWrite(previousPedals[i], j , 0);
           noteOff(0, getPitch(i, j), 0);
+          MidiUSB.flush();
         }
       }
 
@@ -131,6 +133,6 @@ void loop() {
   }
 
   // flush buffer
-  if (bufferCount >= BUFFER_SIZE)
-    flushBuffer();
+  // if (bufferCount >= BUFFER_SIZE)
+  //   flushBuffer();
 }
