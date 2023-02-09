@@ -64,9 +64,7 @@ unsigned long lastTriggerTime[NUM_PEDALS];
 // unsigned int bufferCount = 0;
 
 /*
- * Calculate pitch from column and row numbers
- * col: from 0 to NUM_COLUMNS-1
- * row: from 0 to NUM_ROWS-1
+ * Calculate pitch from key number
  */
 uint8_t getPitch(int n)
 {
