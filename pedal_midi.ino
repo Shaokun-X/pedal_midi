@@ -170,7 +170,7 @@ void loop()
   }
 
   // read the analog input of expression pedal
-  unsigned currentExpressionPedal = analogRead();
+  unsigned currentExpressionPedal = analogRead(EXPRESSION_PEDAL);
   if (currentExpressionPedal != lastExpressionPedal)
   {
     lastExpressionPedal = currentExpressionPedal;
