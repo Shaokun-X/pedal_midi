@@ -4,6 +4,9 @@
 
 #include <MIDIUSB.h>
 
+#define PEDALS_CHANNEL 0
+#define CONTROL_CHANNEL 1
+
 #define PITCH_C1 24
 
 #define NUM_PEDALS 30
@@ -48,6 +51,7 @@
 #define PEDAL28 49
 #define PEDAL29 50
 #define PEDAL30 51
+#define EXPRESSION_PEDAL A0
 
 const uint8_t pedals[NUM_PEDALS] = {
     PEDAL1, PEDAL2, PEDAL3, PEDAL4, PEDAL5, PEDAL6, PEDAL7, PEDAL8,
@@ -58,6 +62,8 @@ const uint8_t pedals[NUM_PEDALS] = {
 // one bit per pedal
 unsigned long int pressedPedals = 0;
 unsigned long int previousPedals = 0;
+
+unsigned lastExpressionPedal = 0;
 
 unsigned long lastTriggerTime[NUM_PEDALS];
 
@@ -90,6 +96,11 @@ void noteOff(byte channel, byte pitch, byte velocity)
   // bufferCount += sizeof(midiEventPacket_t);
 }
 
+void controlChange(byte channel, byte control, byte value) 
+{
+  midiEventPacket_t event = {0x0B, 0xB0 | channel, control, value};
+  MidiUSB.sendMIDI(event);
+}
 // void flushBuffer() {
 //   MidiUSB.flush();
 //   bufferCount = 0;
@@ -100,6 +111,8 @@ void noteOff(byte channel, byte pitch, byte velocity)
 ////////////////////////////////////////////
 void setup()
 {
+  // Due support 12 bits resolution 0-4095
+  analogReadResolution(12);
   for (int i = 0; i < NUM_PEDALS; i++)
   {
     pinMode(pedals[i], INPUT_PULLUP);
@@ -135,6 +148,7 @@ void loop()
     }
   }
 
+  // sent pedal midi signals
   for (int i = 0; i < NUM_PEDALS; i++)
   {
     if (bitRead(pressedPedals, i) != bitRead(previousPedals, i))
@@ -142,17 +156,27 @@ void loop()
       if (bitRead(pressedPedals, i)) {
           // press
           bitWrite(previousPedals, i, 1);
-          noteOn(0, getPitch(i), INTENSITY);
+          noteOn(PEDALS_CHANNEL, getPitch(i), INTENSITY);
           MidiUSB.flush();
       }
       else
       {
           // release
           bitWrite(previousPedals, i, 0);
-          noteOff(0, getPitch(i), 0);
+          noteOff(PEDALS_CHANNEL, getPitch(i), 0);
           MidiUSB.flush();
       }
     }
+  }
+
+  // read the analog input of expression pedal
+  unsigned currentExpressionPedal = analogRead();
+  if (currentExpressionPedal != lastExpressionPedal)
+  {
+    lastExpressionPedal = currentExpressionPedal;
+    unsigned char value = map(currentExpressionPedal, 0, 4095, 0, 127);
+    value = constrain(value, 0, 127);
+    controlChange(CONTROL_CHANNEL, 11, value);
   }
 
   // flush buffer
